@@ -24,4 +24,14 @@ export const findAll = async(): Promise<Person[]> => {
         console.error("Erro ao buscar pessoas: ", error);
         throw error;
     }
-}
+};
+
+export const createPerson = async (personData: NewPerson): Promise<Person> => {
+    try {
+        const response = await axios.post<Person>(API_URL, personData);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao cadastrar pessoa: ", error)
+        throw error;
+    }
+};

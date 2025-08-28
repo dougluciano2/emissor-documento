@@ -17,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/documents")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class DocumentController {
 
     private final DocumentService service;
@@ -46,20 +47,23 @@ public class DocumentController {
                 .body(documentContent.asByteArray());
     }
 
-    @PostMapping("/upload")
+    @PostMapping
     public ResponseEntity<DocumentResponseDTO> upload(
+            @PathVariable Long personId,
             @RequestBody @Valid DocumentUploadRequestDTO request,
             UriComponentsBuilder uriComponentsBuilder
             ){
 
         var toPersist = service.uploadDocument(
                 request.title(),
-                request.htmlContent()
+                request.htmlContent(),
+                personId
         );
 
         var response = mapper.toDocumentResponseDTO(toPersist);
 
-        var uri = uriComponentsBuilder.path("/documents/{id}").buildAndExpand(response).toUri();
+        var uri = uriComponentsBuilder.path("/documents/{id}")
+                .buildAndExpand(response.id()).toUri();
 
         return ResponseEntity.created(uri).body(response);
     }

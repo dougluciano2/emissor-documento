@@ -1,7 +1,9 @@
 package br.com.dougluciano.emissor_documento.services;
 
 import br.com.dougluciano.emissor_documento.entities.Document;
+import br.com.dougluciano.emissor_documento.entities.Person;
 import br.com.dougluciano.emissor_documento.repository.DocumentRepository;
+import br.com.dougluciano.emissor_documento.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,6 +27,7 @@ public class DocumentService {
 
     private final S3Client s3Client;
     private final DocumentRepository repository;
+    private final PersonRepository personRepository;
 
     @Value("${object-storage.bucket-name}")
     private String bucketName;
@@ -50,8 +54,20 @@ public class DocumentService {
         return s3Client.getObjectAsBytes(getObjectRequest);
     }
 
+    @Transactional(readOnly = true)
+    public List<Document> findByMedicalRecordByPerson(Long id){
+        return repository.findAllByPersonIdOrderByMedicalRecordIndexAsc(id);
+    }
+
     @Transactional
-    public Document uploadDocument(String title, String htmlContent){
+    public Document uploadDocument(String title, String htmlContent, Long id){
+
+        Person existingPerson = personRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada"));
+
+        Optional<Document> lastDocument = repository.findByPersonIdOrderByMedicalRecordIndexDesc(id);
+
+        int newDocumentIndex = lastDocument.map(doc -> doc.getMedicalRecordIndex() + 1).orElse(1);
 
         // creating path, file name and extension
         String fileExtension = ".html";
@@ -75,6 +91,8 @@ public class DocumentService {
         document.setTitle(title);
         document.setFileType("text/html");
         document.setStoragePath(storagePath);
+        document.setPerson(existingPerson);
+        document.setMedicalRecordIndex(newDocumentIndex);
 
         return repository.save(document);
     }
