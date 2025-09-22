@@ -43,4 +43,32 @@ Uma das funcionalidades centrais desta POC é a capacidade de popular dinamicame
 
 ### Como Funciona?
 
-A lógica não é uma simples substituição de texto (find/replace). Em vez disso, o sistema trata os
+A lógica não é uma simples substituição de texto (find/replace). Em vez disso, o sistema trata os placeholders no template como expressões a serem avaliadas em tempo de execução.
+
+1.  **Definição no Template:** Ao criar um template, o usuário insere expressões SpEL que acessam atributos de um objeto `Paciente`. A sintaxe utilizada para delimitar essas expressões é `[...]`.
+
+    *Exemplo de texto em um template:*
+    ```text
+    Atesto, para os devidos fins, que o(a) paciente [nome], portador(a) do CPF nº [cpf], necessita de repouso por 3 (três) dias.
+    ```
+
+2.  **Contexto de Avaliação:** Quando um novo documento é gerado a partir deste template, o back-end cria uma instância do objeto `Paciente` com os dados relevantes e a define como o objeto raiz no contexto de avaliação do SpEL.
+
+3.  **Processamento com SpEL:** A API então lê o conteúdo do template, identifica todas as expressões delimitadas por `[...]` e utiliza o parser do SpEL para avaliá-las com base no objeto `Paciente` fornecido.
+
+4.  **Resultado Final:** Cada expressão é substituída pelo resultado de sua avaliação, gerando o documento final com os dados preenchidos de forma segura e precisa.
+
+    *Exemplo do documento gerado:*
+    ```text
+    Atesto, para os devidos fins, que o(a) paciente João da Silva, portador(a) do CPF nº 123.456.789-00, necessita de repouso por 3 (três) dias.
+    ```
+
+### Vantagens desta Abordagem
+
+-   **Flexibilidade:** Permite o acesso não apenas a atributos diretos (`[nome]`), mas também a propriedades de objetos aninhados (`[endereco.cidade]`) ou até mesmo a execução de métodos (`[getNome().toUpperCase()]`), se permitido na configuração.
+-   **Segurança:** Utiliza um parser robusto e bem testado, evitando os problemas de uma implementação de substituição manual.
+-   **Manutenibilidade:** Desacopla a lógica de geração de documentos do código-fonte. Novos templates com novos campos podem ser criados sem a necessidade de alterar a API.
+
+## 🌟 Agradecimentos
+
+-   Agradecimento especial ao [**Professor Isidro**](https://www.linkedin.com/in/professor-isidro-phd/) e ao projeto **"Clinica Salutar"** da plataforma **IsiFlix**, que serviram de inspiração e base conceitual para esta Prova de Conceito.
