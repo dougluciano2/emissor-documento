@@ -1,0 +1,13 @@
+.document-viewer-a4 {
+  background-color: white;
+  width: 794px; /* Largura aproximada de um A4 em pixels */
+  height: 1123px; /* Altura aproximada de um A4 em pixels */
+  
+  /* Adiciona a barra de rolagem vertical apenas se o conteúdo for maior que a altura */
+  overflow-y: auto; 
+  
+  /* Estilos extras para parecer uma folha de papel */
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  margin: 0 auto; /* Centraliza a "folha" na coluna */
+}

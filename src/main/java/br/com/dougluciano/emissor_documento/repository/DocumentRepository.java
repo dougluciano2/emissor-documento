@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
-    Optional<Document> findByPersonIdOrderByMedicalRecordIndexDesc(Long personId);
+    Optional<Document> findTopByPersonIdOrderByMedicalRecordIndexDesc(Long personId);
 
     List<Document> findAllByPersonIdOrderByMedicalRecordIndexAsc(Long personId);
 }

@@ -1,6 +1,8 @@
 import { Routes, Route, Link } from 'react-router-dom';
 import { PersonManagementPage } from './pages/PersonManagementPage';
 import { DocumentEditorPage } from './pages/DocumentEditorPage';
+import MedicalRecordPage from './pages/MedicalRecordPage';
+import TemplateEditorPage from './pages/TemplateEditorPage';
 
 function App() {
   return (
@@ -11,7 +13,7 @@ function App() {
           <Link className="navbar-brand" to="/">Emissor de Documentos</Link>
           <div className="navbar-nav">
             <Link className="nav-link" to="/">Gerenciar Pessoas</Link>
-            {/* O link para o editor será usado programaticamente */}
+             <Link className="nav-link" to="/templates/editor">Gerenciar Modelos</Link>
           </div>
         </div>
       </nav>
@@ -21,6 +23,8 @@ function App() {
         <Routes>
           <Route path="/" element={<PersonManagementPage />} />
           <Route path="/document/editor/:personId" element={<DocumentEditorPage />} />
+          <Route path="/medical-record/:personId" element={<MedicalRecordPage />}  />
+          <Route path="/templates/editor" element={<TemplateEditorPage />} />
         </Routes>
       </main>
     </div>

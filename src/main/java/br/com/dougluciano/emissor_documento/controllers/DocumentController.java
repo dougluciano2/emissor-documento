@@ -24,12 +24,22 @@ public class DocumentController {
     private final DocumentMapper mapper;
 
     @GetMapping
-    public ResponseEntity<List<DocumentResponseDTO>> listAll() {
-        List<DocumentResponseDTO> documents = service.findAll()
-                .stream()
+    public ResponseEntity<List<DocumentResponseDTO>> listAll(
+            @RequestParam(name = "personId", required = false) Long personId
+    ) {
+        List<Document> documents;
+
+        if(personId != null){
+            documents = service.findByMedicalRecordByPerson(personId);
+        } else {
+            documents = service.findAll();
+        }
+
+        List<DocumentResponseDTO> responseDto = documents.stream()
                 .map(mapper::toDocumentResponseDTO)
                 .toList();
-        return ResponseEntity.ok(documents);
+
+        return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/{id}")
@@ -49,16 +59,12 @@ public class DocumentController {
 
     @PostMapping
     public ResponseEntity<DocumentResponseDTO> upload(
-            @PathVariable Long personId,
             @RequestBody @Valid DocumentUploadRequestDTO request,
             UriComponentsBuilder uriComponentsBuilder
             ){
 
-        var toPersist = service.uploadDocument(
-                request.title(),
-                request.htmlContent(),
-                personId
-        );
+
+        var toPersist = service.uploadDocument(request);
 
         var response = mapper.toDocumentResponseDTO(toPersist);
 

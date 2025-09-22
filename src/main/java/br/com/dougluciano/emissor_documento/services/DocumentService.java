@@ -2,6 +2,7 @@ package br.com.dougluciano.emissor_documento.services;
 
 import br.com.dougluciano.emissor_documento.entities.Document;
 import br.com.dougluciano.emissor_documento.entities.Person;
+import br.com.dougluciano.emissor_documento.entities.dtos.DocumentUploadRequestDTO;
 import br.com.dougluciano.emissor_documento.repository.DocumentRepository;
 import br.com.dougluciano.emissor_documento.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
@@ -60,12 +61,12 @@ public class DocumentService {
     }
 
     @Transactional
-    public Document uploadDocument(String title, String htmlContent, Long id){
+    public Document uploadDocument(DocumentUploadRequestDTO request){
 
-        Person existingPerson = personRepository.findById(id)
+        Person existingPerson = personRepository.findById(request.personId())
                 .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada"));
 
-        Optional<Document> lastDocument = repository.findByPersonIdOrderByMedicalRecordIndexDesc(id);
+        Optional<Document> lastDocument = repository.findTopByPersonIdOrderByMedicalRecordIndexDesc(request.personId());
 
         int newDocumentIndex = lastDocument.map(doc -> doc.getMedicalRecordIndex() + 1).orElse(1);
 
@@ -83,12 +84,12 @@ public class DocumentService {
 
         s3Client.putObject(
                 putObjectRequest,
-                RequestBody.fromBytes(htmlContent.getBytes(StandardCharsets.UTF_8))
+                RequestBody.fromBytes(request.htmlContent().getBytes(StandardCharsets.UTF_8))
                 );
 
         //save metadata into database
         Document document = new Document();
-        document.setTitle(title);
+        document.setTitle(request.title());
         document.setFileType("text/html");
         document.setStoragePath(storagePath);
         document.setPerson(existingPerson);

@@ -1,14 +1,20 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { findAll, createPerson, type Person, type NewPerson } from '../services/person.service';
 import { useNavigate } from 'react-router-dom';
+import TemplateSelectModal from '../components/TemplateSelectModal';
 
 
 export function PersonManagementPage() {
   // Estado para a lista de pessoas
   const [people, setPeople] = useState<Person[]>([]);
   const navigate = useNavigate();
-  
-  
+
+  // estados para controlar o modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
+
+
+
   // Estado para os dados do formulário de nova pessoa
   const [newPerson, setNewPerson] = useState<NewPerson>({
     name: '',
@@ -37,13 +43,23 @@ export function PersonManagementPage() {
 
   const handleEmitDocument = (personId: number) => {
     console.log("Ação: Emitir documento para a pessoa com ID:", personId);
-    navigate(`/document/editor/${personId}`); 
+    setSelectedPersonId(personId);
+    setIsModalOpen(true);
   };
 
   const handleViewRecord = (personId: number) => {
     console.log("Ação: Visualizar prontuário da pessoa com ID:", personId);
+    navigate(`/medical-record/${personId}`);
   };
-  
+
+  //handle para a função de confirmação do modal
+  const handleModalConfirm = (templateId: string) => {
+    setIsModalOpen(false)
+    if (selectedPersonId) {
+      navigate(`/document/editor/${selectedPersonId}?templateId=${templateId}`);
+    }
+  }
+
   // Handler para atualizar o estado do formulário enquanto o usuário digita
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -80,34 +96,34 @@ export function PersonManagementPage() {
           {/* Inputs do formulário lendo do estado 'newPerson' */}
           <div className="mb-3">
             <label htmlFor="name" className="form-label">Nome</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="name" 
+            <input
+              type="text"
+              className="form-control"
+              id="name"
               name="name"
               value={newPerson.name}
               onChange={handleInputChange}
-              required 
+              required
             />
           </div>
           <div className="mb-3">
             <label htmlFor="cpf" className="form-label">CPF</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="cpf" 
+            <input
+              type="text"
+              className="form-control"
+              id="cpf"
               name="cpf"
               value={newPerson.cpf}
               onChange={handleInputChange}
-              required 
+              required
             />
           </div>
           <div className="mb-3">
             <label htmlFor="address" className="form-label">Endereço</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="address" 
+            <input
+              type="text"
+              className="form-control"
+              id="address"
               name="address"
               value={newPerson.address}
               onChange={handleInputChange}
@@ -115,10 +131,10 @@ export function PersonManagementPage() {
           </div>
           <div className="mb-3">
             <label htmlFor="medicalDiagnostics" className="form-label">Diagnóstico Médico</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="medicalDiagnostics" 
+            <input
+              type="text"
+              className="form-control"
+              id="medicalDiagnostics"
               name="medicalDiagnostics"
               value={newPerson.medicalDiagnostics}
               onChange={handleInputChange}
@@ -133,7 +149,7 @@ export function PersonManagementPage() {
       {/* Seção da Listagem de Pessoas */}
       <h2 className="mb-3">Pessoas Cadastradas</h2>
       {people.length === 0 && <p>Nenhuma pessoa cadastrada.</p>}
-      
+
       {people.length > 0 && (
         <table className="table table-striped table-hover">
           <thead className="table-dark">
@@ -162,6 +178,18 @@ export function PersonManagementPage() {
           </tbody>
         </table>
       )}
+      <div className="container mt-4">
+        {/* ... seu formulário e tabela JSX continuam iguais ... */}
+
+        {/* 5. ADICIONE O COMPONENTE DO MODAL AO FINAL DO SEU JSX */}
+        <TemplateSelectModal
+          show={isModalOpen}
+          personId={selectedPersonId}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={handleModalConfirm}
+        />
+      </div>
+
     </div>
   );
 }

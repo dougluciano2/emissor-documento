@@ -7,16 +7,17 @@ import './index.css'
 import App from './App.tsx'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+const rootElement = document.getElementById('root');
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App></App>
-    </BrowserRouter>
-  </React.StrictMode>
-)
+if (rootElement){
+  const root = ReactDOM.createRoot(rootElement);
+
+  root.render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+}
+

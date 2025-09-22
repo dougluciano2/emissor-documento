@@ -9,6 +9,7 @@ public record DocumentResponseDTO(
         String fileType,
         String storagePath,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        Integer medicalRecordIndex
 ) {
 }
